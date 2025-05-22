@@ -18,16 +18,12 @@ def read_root():
 
 class User(BaseModel):
     identity: str
-    name: int
+    name: str
     room: str
 
 # Обработчик POST-запроса
 @app.post("/users/")
 def create_user(user: User):
-    return {"message": f"Пользователь {user.name} создан", "user_data": user}
-
-@app.get("/getToken")
-def getToken():
     token = api.AccessToken(os.getenv('LIVEKIT_API_KEY'), os.getenv('LIVEKIT_API_SECRET')) \
         .with_identity("identity") \
         .with_name("name") \
@@ -35,5 +31,17 @@ def getToken():
         room_join=True,
         room="my-room",
     )).to_jwt()
+    return {"message": f"Пользователь {user.name} создан", "user_data": user}
 
-    return {"AccessToken": "asdfaeDSFSFQWFDFWas132#!@#$!#@"}
+@app.post("/getToken")
+def getToken(user: User):
+    token = api.AccessToken("devkey",
+                            "secret") \
+        .identity = user.identity \
+        .name = user.name \
+        .with_grants(api.VideoGrants(
+        room_join=True,
+        room=user.room,
+    )).to_jwt()
+
+    return {"AccessToken": token}
