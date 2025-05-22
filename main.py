@@ -7,15 +7,24 @@
 
 from fastapi import FastAPI
 from livekit import api
+from pydantic import BaseModel
 import os
 
 app = FastAPI()
-
 
 @app.get("/")
 def read_root():
     return {"message": "Hello Davitely"}
 
+class User(BaseModel):
+    identity: str
+    name: int
+    room: str
+
+# Обработчик POST-запроса
+@app.post("/users/")
+def create_user(user: User):
+    return {"message": f"Пользователь {user.name} создан", "user_data": user}
 
 @app.get("/getToken")
 def getToken():
